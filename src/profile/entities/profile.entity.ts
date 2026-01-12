@@ -1,8 +1,11 @@
+import { RefreshToken } from "../../auth/entities/refresh-token.entity.ts";
 import {
     Column,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn
 } from "typeorm";
+import type { Relation } from "typeorm";
 
 
 @Entity()
@@ -24,4 +27,10 @@ export class Profile {
 
     @Column({length: 1000})
     description: string
+
+    @OneToMany(
+        () => RefreshToken,
+        (token) => token.profile,
+    )
+    refreshToken: Relation<RefreshToken>[];
 }

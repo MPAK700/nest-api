@@ -17,7 +17,6 @@ export class ProfileService {
             ...profileDto,
             password: passwordHash,
         });
-        console.log(entity);
 
         try {
             return await this.profileRepository.save(entity);

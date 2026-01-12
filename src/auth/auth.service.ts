@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import argon from 'argon2';
 import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { ProfileService } from '../profile/profile.service.ts';
 import { ProfileDTO } from '../profile/dto/profile.dto.ts';
 import { SignInDTO } from '../profile/dto/sign-in.dto.ts';
-import { JwtService } from '@nestjs/jwt';
 import { Profile } from '../profile/entities/profile.entity.ts';
 
 @Injectable()

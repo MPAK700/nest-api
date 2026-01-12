@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller.ts';
 import { AuthService } from './auth.service.ts';
 import { ProfileModule } from '../profile/profile.module.ts';
 import { PassportModule } from '@nestjs/passport';
-import { JwtAccessStrategy } from './strategy/jwt-access.strategy.ts';
+import { JwtAccessStrategy } from './strategies/jwt-access.strategy.ts';
 
 @Module({
     imports: [
