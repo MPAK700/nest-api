@@ -1,18 +1,23 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import argon from 'argon2';
 import { QueryFailedError, Repository } from 'typeorm';
-import { Profile } from './entities/profile.entity.ts';
+import { Profile } from './entity/profile.entity.ts';
 import { ProfileDTO } from './dto/profile.dto.ts';
 
 @Injectable()
 export class ProfileService {
     constructor(
-        @InjectRepository(Profile) private readonly profileRepository: Repository<Profile>,
+        @InjectRepository(Profile)
+        private readonly profileRepository: Repository<Profile>,
     ) { }
 
     async createProfile(profileDto: ProfileDTO): Promise<Profile> {
-        const passwordHash = await argon.hash(profileDto.password)
+        const passwordHash = await argon.hash(profileDto.password);
         const entity = this.profileRepository.create({
             ...profileDto,
             password: passwordHash,
