@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -6,22 +6,23 @@ import { ProfileService } from '../../profile/profile.service.ts';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
-    Strategy,
-    'jwt-access',
-  ) 
-{
+  Strategy,
+  'jwt-access',
+) {
   constructor(
     configService: ConfigService,
     private readonly profileService: ProfileService,
   ) {
     const secret = configService.get<string>('JWT_ACCESS_SECRET');
-    
+
     if (!secret) {
       throw new Error('JWT_ACCESS_SECRET is not set in configuration');
     }
 
+    const jwt = ExtractJwt.fromAuthHeaderAsBearerToken();
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: jwt,
       ignoreExpiration: false,
       secretOrKey: secret,
     });
@@ -31,7 +32,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     const profile = await this.profileService.findById(payload.sub);
 
     if (!profile) {
-      throw new NotFoundException('User not found');
+      throw new UnauthorizedException();
     }
 
     const { password, ...profileSafe } = profile;

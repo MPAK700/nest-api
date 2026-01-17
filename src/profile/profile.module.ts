@@ -11,4 +11,4 @@ import { ConfigModule } from '@nestjs/config';
   providers: [ProfileService],
   exports: [ProfileService],
 })
-export class ProfileModule { }
+export class ProfileModule {}

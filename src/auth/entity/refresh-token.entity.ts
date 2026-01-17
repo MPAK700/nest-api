@@ -1,25 +1,31 @@
 import { Profile } from '../../profile/entity/profile.entity.ts';
 import {
-    Column,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 
 @Entity()
 export class RefreshToken {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    tokenHash: string;
+  @Column({ unique: true })
+  jti: string;
 
-    @Column()
-    expiresAt: Date;
+  @Column()
+  tokenHash: string;
 
-    @ManyToOne(() => Profile, (profile) => profile.refreshToken)
-    @JoinColumn({ name: 'profile_id' })
-    profile: Relation<Profile>;
+  @Column()
+  expiresAt: Date;
+
+  @Column({ default: false })
+  revoked: boolean;
+
+  @ManyToOne(() => Profile, (profile) => profile.refreshToken)
+  @JoinColumn({ name: 'profile_id' })
+  profile: Relation<Profile>;
 }

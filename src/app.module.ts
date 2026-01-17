@@ -26,4 +26,4 @@ import { RefreshToken } from './auth/entity/refresh-token.entity.ts';
     ProfileModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
