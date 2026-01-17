@@ -146,11 +146,7 @@ export class AuthService {
     return tokenEntity;
   }
 
-  private createRefreshToken(
-    profileId: number,
-    token: string,
-    jti: string,
-  ) {
+  private createRefreshToken(profileId: number, token: string, jti: string) {
     const tokenHash = hash(token);
 
     const expiresIn = this.configService.get<StringValue>(

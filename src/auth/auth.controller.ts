@@ -32,7 +32,9 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@GetUser<RefreshUser>() user: RefreshUser): Promise<SignInResponseDTO> {
+  refresh(
+    @GetUser<RefreshUser>() user: RefreshUser,
+  ): Promise<SignInResponseDTO> {
     return this.authService.rotateTokens(user);
   }
 }

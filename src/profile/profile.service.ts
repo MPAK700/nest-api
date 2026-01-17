@@ -28,7 +28,7 @@ export class ProfileService {
     } catch (err) {
       if (err instanceof QueryFailedError) {
         const driverError = err.driverError as { code?: string };
-        if (driverError.code  === '23505') {
+        if (driverError.code === '23505') {
           throw new ConflictException('User already exists');
         }
       }

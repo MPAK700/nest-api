@@ -17,7 +17,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionFilter());
   await app.listen(3000);
 }
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
   console.error('Bootstrap failed', err);
   process.exit(1);
-});;
+});

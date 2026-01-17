@@ -4,7 +4,6 @@ import { JwtAccessGuard } from '../auth/guard/access.guard.ts';
 import { GetUser } from '../common/decorator/get-user.decorator.ts';
 import type { BaseUser } from '../auth/types/base-user.type.ts';
 
-
 @UseGuards(JwtAccessGuard)
 @Controller('profile')
 export class ProfileController {
