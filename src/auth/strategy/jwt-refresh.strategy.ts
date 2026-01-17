@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException, Req, UnauthorizedException} from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import type { Request } from 'express'
 import { ProfileService } from '../../profile/profile.service.ts';
-import { RefreshToken } from '../entity/refresh-token.entity.ts';
 import { AuthService } from '../auth.service.ts';
+import { RequestWithCookies } from '../types/request-with-cookies.type.ts';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -25,7 +27,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request) => req?.cookies?.refreshToken,
+        (req: RequestWithCookies) => req?.cookies?.refreshToken,
       ]),
       ignoreExpiration: false,
       secretOrKey: secret,
@@ -33,15 +35,22 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(req: Request, payload: { sub: number; login: string; jti: string }) {
-    const refreshToken = req.cookies['refreshToken'];
+  async validate(
+    req: RequestWithCookies,
+    payload: { sub: number; login: string; jti: string },
+  ) {
+    const refreshToken: string = req.cookies['refreshToken'];
     const profile = await this.profileService.findById(payload.sub);
 
     if (!profile) {
       throw new UnauthorizedException();
     }
 
-    await this.authService.validateRefreshToken(profile, refreshToken, payload.jti);
+    await this.authService.validateRefreshToken(
+      profile,
+      refreshToken,
+      payload.jti,
+    );
 
     return {
       id: profile.id,

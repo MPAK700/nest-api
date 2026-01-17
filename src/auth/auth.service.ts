@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshUser } from './types/refresh-user.type.ts';
 import { hash } from '../common/utils/hash.ts';
 import { randomUUID } from 'crypto';
-import { ref } from 'process';
 
 @Injectable()
 export class AuthService {
@@ -32,10 +31,20 @@ export class AuthService {
   async signUp(profileDto: ProfileDTO) {
     const profile = await this.profileService.createProfile(profileDto);
 
-    const accessToken = await this.generateAccessToken(profile.id, profile.login);
-    const { refreshToken, jti } = await this.generateRefreshToken(profile.id, profile.login);
+    const accessToken = await this.generateAccessToken(
+      profile.id,
+      profile.login,
+    );
+    const { refreshToken, jti } = await this.generateRefreshToken(
+      profile.id,
+      profile.login,
+    );
 
-    const refreshTokenEntity = await this.createRefreshToken(profile.id, refreshToken, jti);
+    const refreshTokenEntity = this.createRefreshToken(
+      profile.id,
+      refreshToken,
+      jti,
+    );
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
     return new SignInResponseDTO(accessToken, refreshToken);
@@ -46,16 +55,26 @@ export class AuthService {
 
     if (!profile) {
       throw new UnauthorizedException('Invalid credentials');
-    };
+    }
 
     if (profile.password != hash(profileDto.password)) {
       throw new UnauthorizedException('Invalid credentials');
-    };
+    }
 
-    const accessToken = await this.generateAccessToken(profile.id, profile.login);
-    const { refreshToken, jti } = await this.generateRefreshToken(profile.id, profile.login);
+    const accessToken = await this.generateAccessToken(
+      profile.id,
+      profile.login,
+    );
+    const { refreshToken, jti } = await this.generateRefreshToken(
+      profile.id,
+      profile.login,
+    );
 
-    const refreshTokenEntity = await this.createRefreshToken(profile.id, refreshToken, jti);
+    const refreshTokenEntity = this.createRefreshToken(
+      profile.id,
+      refreshToken,
+      jti,
+    );
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
     return new SignInResponseDTO(accessToken, refreshToken);
@@ -63,34 +82,42 @@ export class AuthService {
 
   async rotateTokens(refreshUser: RefreshUser) {
     const oldToken = await this.refreshTokenRepository.findOne({
-       where: { 
-        jti: refreshUser.refreshTokenJti, 
-        profile: { id: refreshUser.id }, 
-        revoked: false, 
-        expiresAt: MoreThan(new Date()) 
-    }});
+      where: {
+        jti: refreshUser.refreshTokenJti,
+        profile: { id: refreshUser.id },
+        revoked: false,
+        expiresAt: MoreThan(new Date()),
+      },
+    });
 
     if (!oldToken) {
       throw new UnauthorizedException('Refresh token not found');
-    };
+    }
 
     oldToken.revoked = true;
 
-    const {
-      refreshToken: newRefreshToken,
-      jti: newJti
-      } = await this.generateRefreshToken(refreshUser.id, refreshUser.login);
-    const accessToken = await this.generateAccessToken(refreshUser.id, refreshUser.login);
+    const { refreshToken: newRefreshToken, jti: newJti } =
+      await this.generateRefreshToken(refreshUser.id, refreshUser.login);
+    const accessToken = await this.generateAccessToken(
+      refreshUser.id,
+      refreshUser.login,
+    );
 
-
-    const newTokenEntity = await this.createRefreshToken(refreshUser.id, newRefreshToken, newJti);
+    const newTokenEntity = this.createRefreshToken(
+      refreshUser.id,
+      newRefreshToken,
+      newJti,
+    );
     await this.refreshTokenRepository.save([oldToken, newTokenEntity]);
 
     return new SignInResponseDTO(accessToken, newRefreshToken);
   }
 
-
-  async validateRefreshToken(profile: Profile, refreshToken: string, jti: string) {
+  async validateRefreshToken(
+    profile: Profile,
+    refreshToken: string,
+    jti: string,
+  ) {
     const now = new Date();
 
     const tokenEntity = await this.refreshTokenRepository.findOne({
@@ -105,21 +132,25 @@ export class AuthService {
 
     if (!tokenEntity) {
       throw new UnauthorizedException('Invalid credentials');
-    };
+    }
 
     const isValid = tokenEntity.tokenHash === hash(refreshToken);
     if (!isValid) {
       throw new UnauthorizedException('Refresh token invalid');
-    };
+    }
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid credentials');
-    };
+    }
 
     return tokenEntity;
   }
 
-  private async createRefreshToken(profileId: number, token: string, jti: string) {
+  private createRefreshToken(
+    profileId: number,
+    token: string,
+    jti: string,
+  ) {
     const tokenHash = hash(token);
 
     const expiresIn = this.configService.get<StringValue>(
@@ -128,13 +159,13 @@ export class AuthService {
 
     if (!expiresIn) {
       throw new InternalServerErrorException('Server configuration error');
-    };
+    }
 
     const expiresAt = ms(expiresIn);
     const expiresDate = new Date(Date.now() + expiresAt);
 
     return this.refreshTokenRepository.create({
-      profile: {id: profileId},
+      profile: { id: profileId },
       jti,
       tokenHash,
       expiresAt: expiresDate,

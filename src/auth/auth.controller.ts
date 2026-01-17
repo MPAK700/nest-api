@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.ts';
@@ -12,7 +11,7 @@ import { ProfileDTO } from '../profile/dto/profile.dto.ts';
 import { SignInDTO } from '../profile/dto/sign-in.dto.ts';
 import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { JwtRefreshGuard } from './guard/refresh.guard.ts';
-import { GetCurrentUser } from '../common/decorator/get-current-user.decorator.ts';
+import { GetUser } from '../common/decorator/get-user.decorator.ts';
 import type { RefreshUser } from './types/refresh-user.type.ts';
 
 @Controller()
@@ -33,7 +32,7 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@GetCurrentUser() user: RefreshUser): Promise<SignInResponseDTO> {
+  refresh(@GetUser<RefreshUser>() user: RefreshUser): Promise<SignInResponseDTO> {
     return this.authService.rotateTokens(user);
   }
 }

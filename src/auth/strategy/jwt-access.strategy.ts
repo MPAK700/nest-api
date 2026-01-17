@@ -19,10 +19,8 @@ export class JwtAccessStrategy extends PassportStrategy(
       throw new Error('JWT_ACCESS_SECRET is not set in configuration');
     }
 
-    const jwt = ExtractJwt.fromAuthHeaderAsBearerToken();
-
     super({
-      jwtFromRequest: jwt,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: secret,
     });
@@ -35,7 +33,9 @@ export class JwtAccessStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
 
-    const { password, ...profileSafe } = profile;
-    return profileSafe;
+    return {
+      id: profile.id,
+      login: profile.login,
+    };
   }
 }

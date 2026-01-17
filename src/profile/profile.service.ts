@@ -4,11 +4,9 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import argon from 'argon2';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Profile } from './entity/profile.entity.ts';
 import { ProfileDTO } from './dto/profile.dto.ts';
-import { createHash } from 'crypto';
 import { hash } from '../common/utils/hash.ts';
 
 @Injectable()
@@ -29,7 +27,8 @@ export class ProfileService {
       return await this.profileRepository.save(entity);
     } catch (err) {
       if (err instanceof QueryFailedError) {
-        if ((err as any).code === '23505') {
+        const driverError = err.driverError as { code?: string };
+        if (driverError.code  === '23505') {
           throw new ConflictException('User already exists');
         }
       }
