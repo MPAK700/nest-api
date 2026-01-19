@@ -1,4 +1,4 @@
-import { Profile } from '../../profile/entity/profile.entity.ts';
+import { Profile } from '../../features/profile/entity/profile.entity.ts';
 import {
   Column,
   Entity,

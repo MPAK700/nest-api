@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ProfileService } from '../../profile/profile.service.ts';
+import { ProfileService } from '../../features/profile/profile.service.ts';
 import { AuthService } from '../auth.service.ts';
 import { RequestWithCookies } from '../types/request-with-cookies.type.ts';
 

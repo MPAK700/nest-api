@@ -7,10 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 import { MoreThan, Repository } from 'typeorm';
 import ms, { StringValue } from 'ms';
 import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
-import { ProfileService } from '../profile/profile.service.ts';
-import { ProfileDTO } from '../profile/dto/profile.dto.ts';
-import { SignInDTO } from '../profile/dto/sign-in.dto.ts';
-import { Profile } from '../profile/entity/profile.entity.ts';
+import { ProfileService } from '../features/profile/profile.service.ts';
+import { ProfileCreateDTO } from '../features/profile/dto/profile-create.dto.ts';
+import { SignInDTO } from '../features/profile/dto/sign-in.dto.ts';
+import { Profile } from '../features/profile/entity/profile.entity.ts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshToken } from './entity/refresh-token.entity.ts';
 import { ConfigService } from '@nestjs/config';
@@ -28,7 +28,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(profileDto: ProfileDTO) {
+  async signUp(profileDto: ProfileCreateDTO) {
     const profile = await this.profileService.createProfile(profileDto);
 
     const accessToken = await this.generateAccessToken(
@@ -65,6 +65,7 @@ export class AuthService {
       profile.id,
       profile.login,
     );
+    
     const { refreshToken, jti } = await this.generateRefreshToken(
       profile.id,
       profile.login,

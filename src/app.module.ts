@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.ts';
-import { ProfileModule } from './profile/profile.module.ts';
-import { Profile } from './profile/entity/profile.entity.ts';
+import { ProfileModule } from './features/profile/profile.module.ts';
+import { Profile } from './features/profile/entity/profile.entity.ts';
 import { RefreshToken } from './auth/entity/refresh-token.entity.ts';
 
 @Module({

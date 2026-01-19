@@ -1,5 +1,5 @@
-import { RefreshToken } from '../../auth/entity/refresh-token.entity.ts';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { RefreshToken } from '../../../auth/entity/refresh-token.entity.ts';
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import type { Relation } from 'typeorm';
 
 @Entity()
@@ -21,6 +21,9 @@ export class Profile {
 
   @Column({ length: 1000 })
   description: string;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @OneToMany(() => RefreshToken, (token) => token.profile)
   refreshToken: Relation<RefreshToken>[];

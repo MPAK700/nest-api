@@ -1,6 +1,12 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
-export class ProfileDTO {
+export class ProfileCreateDTO {
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -15,6 +21,7 @@ export class ProfileDTO {
 
   @IsNumber()
   @IsNotEmpty()
+  @IsPositive()
   age: number;
 
   @IsString()

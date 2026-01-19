@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller.ts';
 import { AuthService } from './auth.service.ts';
-import { ProfileModule } from '../profile/profile.module.ts';
+import { ProfileModule } from '../features/profile/profile.module.ts';
 import { JwtAccessStrategy } from './strategy/jwt-access.strategy.ts';
 import { RefreshToken } from './entity/refresh-token.entity.ts';
 import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategy.ts';
