@@ -1,28 +1,23 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsNumber, IsPositive, IsString } from 'class-validator';
 import { Profile } from '../entity/profile.entity.ts';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class ProfileResponseDTO {
+  @ApiProperty()
   @IsEmail()
-  @IsNotEmpty()
   email: string;
 
+  @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   login: string;
 
+  @ApiProperty()
   @IsNumber()
-  @IsNotEmpty()
   @IsPositive()
   age: number;
 
+  @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   description: string;
 
   static fromEntity(profile: Profile): ProfileResponseDTO {

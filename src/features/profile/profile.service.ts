@@ -14,7 +14,7 @@ import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
-import { ProfileUpdateDTO } from './dto/profile-edit.dto.ts';
+import { ProfileUpdateDTO } from './dto/profile-update.dto.ts';
 
 @Injectable()
 export class ProfileService {
@@ -50,37 +50,39 @@ export class ProfileService {
   async updateProfile(id: number, updatedProfile: ProfileUpdateDTO) {
     const profile = await this.findById(id);
     Object.assign(profile, updatedProfile);
-  
+
     await this.profileRepository.save(profile);
     return profile;
   }
 
-  async deleteProfile(id: number){
-    const profile = await this.findById(id);
+  async deleteProfile(id: number) {
+    const result = await this.profileRepository.softDelete(id);
 
-    await this.profileRepository.softDelete(profile);
+    if (!result.affected) {
+      throw new NotFoundException('Profile not found');
+    }
   }
 
   async findByLogin(login: string): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
-      where: { 
+      where: {
         login,
-      },   
+      },
     });
     if (!profile) {
-      throw new NotFoundException()
+      throw new NotFoundException();
     }
     return profile;
   }
 
   async findById(id: number): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
-      where: { 
+      where: {
         id,
-       },
+      },
     });
     if (!profile) {
-      throw new NotFoundException()
+      throw new NotFoundException();
     }
     return profile;
   }

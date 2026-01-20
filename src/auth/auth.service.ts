@@ -65,7 +65,7 @@ export class AuthService {
       profile.id,
       profile.login,
     );
-    
+
     const { refreshToken, jti } = await this.generateRefreshToken(
       profile.id,
       profile.login,

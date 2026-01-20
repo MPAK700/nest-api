@@ -26,7 +26,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: { sub: number; login: string }) {
+  async validate(payload: { sub: number }) {
     const profile = await this.profileService.findById(payload.sub);
 
     if (!profile) {

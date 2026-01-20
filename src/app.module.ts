@@ -3,8 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.ts';
 import { ProfileModule } from './features/profile/profile.module.ts';
-import { Profile } from './features/profile/entity/profile.entity.ts';
-import { RefreshToken } from './auth/entity/refresh-token.entity.ts';
 
 @Module({
   imports: [
@@ -18,8 +16,8 @@ import { RefreshToken } from './auth/entity/refresh-token.entity.ts';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        entities: [Profile, RefreshToken],
-        synchronize: true,
+        autoLoadEntities: true,
+        synchronize: false,
       }),
     }),
     AuthModule,
