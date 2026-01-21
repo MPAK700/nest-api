@@ -1,12 +1,18 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module.js';
-import { ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AllExceptionFilter } from './common/filters/all-exception.filter.ts';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -23,7 +29,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'jwt', // Это имя безопасности, потом его используем в декораторах
+      'jwt',
     )
     .build();
 
@@ -32,6 +38,16 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
+
+export function registerGlobals(app: INestApplication) {
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      strategy: 'excludeAll',
+      excludeExtraneousValues: true,
+    }),
+  );
+}
+
 bootstrap().catch((err) => {
   console.error('Bootstrap failed', err);
   process.exit(1);

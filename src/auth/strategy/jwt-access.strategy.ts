@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ProfileService } from '../../features/profile/profile.service.ts';
+import { JWT_ACCESS_STRATEGY } from '../auth.constants.ts';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
   Strategy,
-  'jwt-access',
+  JWT_ACCESS_STRATEGY,
 ) {
   constructor(
     configService: ConfigService,

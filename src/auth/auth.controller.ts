@@ -1,10 +1,12 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.ts';
 import { ProfileCreateDTO } from '../features/profile/dto/profile-create.dto.ts';
@@ -13,28 +15,33 @@ import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { JwtRefreshGuard } from './guard/refresh.guard.ts';
 import { GetUser } from '../common/decorator/get-user.decorator.ts';
 import type { RefreshUser } from './types/refresh-user.type.ts';
+import { plainToInstance } from 'class-transformer';
 
 @Controller()
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signUp(@Body() profile: ProfileCreateDTO): Promise<SignInResponseDTO> {
-    return this.authService.signUp(profile);
+  async ignUp(@Body() profile: ProfileCreateDTO): Promise<SignInResponseDTO> {
+    const tokens = await this.authService.signUp(profile);
+    return plainToInstance(SignInResponseDTO, tokens);
   }
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  signIn(@Body() profile: SignInDTO): Promise<SignInResponseDTO> {
-    return this.authService.signIn(profile);
+  async signIn(@Body() profile: SignInDTO): Promise<SignInResponseDTO> {
+    const tokens = await this.authService.signIn(profile);
+    return plainToInstance(SignInResponseDTO, tokens);
   }
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(
+  async refresh(
     @GetUser<RefreshUser>() user: RefreshUser,
   ): Promise<SignInResponseDTO> {
-    return this.authService.rotateTokens(user);
+    const tokens = await this.authService.rotateTokens(user);
+    return plainToInstance(SignInResponseDTO, tokens);
   }
 }

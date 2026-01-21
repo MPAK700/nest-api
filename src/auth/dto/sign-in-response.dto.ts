@@ -1,14 +1,10 @@
-import { IsString } from 'class-validator';
+import { Exclude, Expose } from 'class-transformer';
 
+@Exclude()
 export class SignInResponseDTO {
-  @IsString()
+  @Expose()
   accessToken: string;
 
-  @IsString()
+  @Expose()
   refreshToken: string;
-
-  constructor(access_token: string, refresh_token: string) {
-    this.accessToken = access_token;
-    this.refreshToken = refresh_token;
-  }
 }

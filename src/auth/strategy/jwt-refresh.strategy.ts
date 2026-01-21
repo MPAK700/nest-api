@@ -5,11 +5,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ProfileService } from '../../features/profile/profile.service.ts';
 import { AuthService } from '../auth.service.ts';
 import { RequestWithCookies } from '../types/request-with-cookies.type.ts';
+import { JWT_REFRESH_STRATEGY } from '../auth.constants.ts';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  JWT_REFRESH_STRATEGY,
 ) {
   constructor(
     configService: ConfigService,

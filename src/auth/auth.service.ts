@@ -6,7 +6,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { MoreThan, Repository } from 'typeorm';
 import ms, { StringValue } from 'ms';
-import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { ProfileService } from '../features/profile/profile.service.ts';
 import { ProfileCreateDTO } from '../features/profile/dto/profile-create.dto.ts';
 import { SignInDTO } from '../features/profile/dto/sign-in.dto.ts';
@@ -47,7 +46,7 @@ export class AuthService {
     );
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
-    return new SignInResponseDTO(accessToken, refreshToken);
+    return { accessToken, refreshToken };
   }
 
   async signIn(profileDto: SignInDTO) {
@@ -78,7 +77,7 @@ export class AuthService {
     );
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
-    return new SignInResponseDTO(accessToken, refreshToken);
+    return { accessToken, refreshToken };
   }
 
   async rotateTokens(refreshUser: RefreshUser) {
@@ -111,7 +110,10 @@ export class AuthService {
     );
     await this.refreshTokenRepository.save([oldToken, newTokenEntity]);
 
-    return new SignInResponseDTO(accessToken, newRefreshToken);
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
   }
 
   async validateRefreshToken(
@@ -136,9 +138,6 @@ export class AuthService {
     }
 
     const isValid = tokenEntity.tokenHash === hash(refreshToken);
-    if (!isValid) {
-      throw new UnauthorizedException('Refresh token invalid');
-    }
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid credentials');
