@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { JWT_ACCESS_STRATEGY } from '../auth.constants.ts';
+
+export const JWT_ACCESS_STRATEGY = 'jwt-access';
 
 @Injectable()
 export class JwtAccessGuard extends AuthGuard(JWT_ACCESS_STRATEGY) {
