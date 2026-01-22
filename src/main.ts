@@ -39,15 +39,6 @@ async function bootstrap() {
   await app.listen(3000);
 }
 
-export function registerGlobals(app: INestApplication) {
-  app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector), {
-      strategy: 'excludeAll',
-      excludeExtraneousValues: true,
-    }),
-  );
-}
-
 bootstrap().catch((err) => {
   console.error('Bootstrap failed', err);
   process.exit(1);

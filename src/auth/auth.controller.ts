@@ -15,7 +15,6 @@ import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { JwtRefreshGuard } from './guard/refresh.guard.ts';
 import { GetUser } from '../common/decorator/get-user.decorator.ts';
 import type { RefreshUser } from './types/refresh-user.type.ts';
-import { plainToInstance } from 'class-transformer';
 
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
@@ -24,16 +23,14 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  async ignUp(@Body() profile: ProfileCreateDTO): Promise<SignInResponseDTO> {
-    const tokens = await this.authService.signUp(profile);
-    return plainToInstance(SignInResponseDTO, tokens);
+  async signUp(@Body() profile: ProfileCreateDTO): Promise<SignInResponseDTO> {
+    return this.authService.signUp(profile);
   }
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() profile: SignInDTO): Promise<SignInResponseDTO> {
-    const tokens = await this.authService.signIn(profile);
-    return plainToInstance(SignInResponseDTO, tokens);
+    return this.authService.signIn(profile);
   }
 
   @Post('refresh')
@@ -41,7 +38,6 @@ export class AuthController {
   async refresh(
     @GetUser<RefreshUser>() user: RefreshUser,
   ): Promise<SignInResponseDTO> {
-    const tokens = await this.authService.rotateTokens(user);
-    return plainToInstance(SignInResponseDTO, tokens);
+    return this.authService.rotateTokens(user);
   }
 }
