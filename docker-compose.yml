@@ -12,6 +12,23 @@ services:
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
 
+  minio:
+    env_file: .env.test.local
+    image: minio/minio
+    container_name: "people-minio"
+    command: server --console-address ":9001" /data
+    ports:
+      - "${MINIO_PORT_1}:9000"
+      - "${MINIO_PORT_2}:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+volumes:
+  minio_data:
+
   # pgadmin:
   #   image: dpage/pgadmin4
   #   environment:
