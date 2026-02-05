@@ -22,7 +22,9 @@
     "migration:generate": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:generate",
     "migration:create": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:create",
     "migration:run": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:run -d ./src/configs/data-source.config.ts",
-    "migration:revert": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:revert -d ./src/configs/data-source.config.ts"
+    "migration:revert": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:revert -d ./src/configs/data-source.config.ts",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -39,6 +41,8 @@
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "nestjs-typeorm-paginate": "^4.1.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
@@ -72,7 +76,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "husky": "^8.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -90,5 +95,13 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "lint-staged": {
+    "*.{js, jsx,ts,tsx}": [
+      "eslint --quiet --fix"
+    ],
+    "*.{json,js,ts,jsx,tsx,html}": [
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
