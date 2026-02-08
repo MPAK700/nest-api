@@ -1,3 +1,4 @@
+import { Avatar } from '../../avatar/entity/avatar.entity.ts';
 import { RefreshToken } from '../../../auth/entity/refresh-token.entity.ts';
 import {
   Column,
@@ -33,4 +34,7 @@ export class Profile {
 
   @OneToMany(() => RefreshToken, (token) => token.profile)
   refreshToken: Relation<RefreshToken>[];
+
+  @OneToMany(() => Avatar, (avatar) => avatar.profile)
+  avatar: Relation<Avatar>[];
 }

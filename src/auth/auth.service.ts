@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -19,6 +20,8 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly configService: ConfigService,
     @InjectRepository(RefreshToken)
@@ -29,6 +32,8 @@ export class AuthService {
 
   async signUp(profileDto: ProfileCreateDTO) {
     const profile = await this.profileService.createProfile(profileDto);
+
+    this.logger.log(`Profile created: login=${profile.login}`);
 
     const accessToken = await this.generateAccessToken(
       profile.id,
