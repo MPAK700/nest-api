@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.ts';
 import { ProfileModule } from './features/profile/profile.module.ts';
-import { AvatarModule } from './features/avatar/avatar.module';
+import { AvatarModule } from './features/avatar/avatar.module.ts';
 
 @Module({
   imports: [

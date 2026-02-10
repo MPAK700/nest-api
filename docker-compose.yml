@@ -25,7 +25,8 @@ services:
       - pgadmin-data:/var/lib/pgadmin
 
   minio:
-    env_file: .env.test.local
+    env_file: 
+      - .env.test.local
     image: minio/minio
     container_name: "people-minio"
     command: server --console-address ":9001" /data

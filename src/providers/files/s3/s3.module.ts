@@ -3,13 +3,15 @@ import { Module } from '@nestjs/common';
 
 import { S3Lib } from './constants/do-spaces-service-lib.constant.ts';
 import { S3Service } from './s3.service.ts';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
+  imports: [ConfigModule],
   providers: [
     S3Service,
     {
       provide: S3Lib,
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return new AWS.S3({
           endpoint: 'http://127.0.0.1:9000',

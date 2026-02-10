@@ -11,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from '../../common/decorator/get-user.decorator.ts';
 import type { BaseUser } from '../../auth/types/base-user.type.ts';
 import { AvatarService } from './avatar.service.ts';
+import type { IUploadedMulterFile } from '../../providers/files/s3/interfaces/upload-file.interface.ts';
 
 @UseGuards(JwtAccessGuard)
 @Controller('profile/avatar')
@@ -21,13 +22,14 @@ export class AvatarController {
   @UseInterceptors(FileInterceptor('file'))
   uploadAvatar(
     @GetUser<BaseUser>() user: BaseUser,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: IUploadedMulterFile,
   ) {
-    this.avatarService.uploadFile(user.id, file);
+    return this.avatarService.uploadFile(user.id, file);
   }
 
   @Delete()
   deleteAvatar(@GetUser<BaseUser>() user: BaseUser) {
-    return user;
+    console.log(user);
+    //return this.avatarService.deleteAvatar();
   }
 }

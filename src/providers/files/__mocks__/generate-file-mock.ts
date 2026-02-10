@@ -1,4 +1,4 @@
-import { IUploadedMulterFile } from '../s3/interfaces/upload-file.interface';
+import { IUploadedMulterFile } from '../s3/interfaces/upload-file.interface.ts';
 
 export function generateFileMock(size = 1024 * 1024): IUploadedMulterFile {
   return {

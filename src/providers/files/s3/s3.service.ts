@@ -19,7 +19,6 @@ import { S3ServiceException } from '@aws-sdk/client-s3';
 export class S3Service extends IFileService {
   private readonly logger = new Logger(S3Service.name);
 
-  // TODO: укажи имя бакета
   private readonly bucketName = 'avatar';
 
   constructor(@Inject(S3Lib) private readonly S3: AWS.S3) {

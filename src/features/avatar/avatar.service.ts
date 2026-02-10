@@ -7,8 +7,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Avatar } from './entity/avatar.entity.ts';
 import { Repository } from 'typeorm';
-import { Profile } from '../profile/entity/profile.entity.ts';
 import { IFileService } from '../../providers/files/files.adapter.ts';
+import { IUploadedMulterFile } from '../../providers/files/s3/interfaces/upload-file.interface.ts';
+import { ProfileService } from '../profile/profile.service.ts';
 
 @Injectable()
 export class AvatarService {
@@ -17,35 +18,40 @@ export class AvatarService {
   constructor(
     @InjectRepository(Avatar)
     private readonly avatarRepository: Repository<Avatar>,
-    @InjectRepository(Profile)
-    private readonly profileRepository: Repository<Profile>,
+    private readonly profileService: ProfileService,
     private readonly fileService: IFileService,
   ) {}
 
-  async uploadFile(id: number, file: Express.Multer.File) {
-    const currentProfile = await this.profileRepository.findOne({
-      where: {
-        id,
-      },
-    });
+  async uploadFile(profileId: number, file: IUploadedMulterFile) {
+    const profile = await this.profileService.findById(profileId);
 
-    if (!currentProfile) {
+    if (!profile) {
       return new NotFoundException('Profile not found');
     }
 
-    const [avatars, count] = await this.avatarRepository.findAndCount({
+    const count = await this.avatarRepository.count({
       where: {
-        profile: currentProfile,
+        profile: { id: profileId },
       },
     });
 
-    if (count > 4 && avatars) {
+    if (count > 4) {
       return new InternalServerErrorException('Too many avatars');
     }
 
     const timestamp = Date.now().toString();
-    const folder = id.toString();
+    const folder = profileId.toString();
     await this.fileService.uploadFile({ file, folder, name: timestamp });
-    this.avatarRepository.create();
+    const avatarEntity = this.avatarRepository.create({
+      fileName: timestamp,
+      isCurrent: true,
+      profile: { id: profileId },
+    });
+
+    return this.avatarRepository.save(avatarEntity);
+  }
+
+  deleteAvatar(profileId: number, fileName: string) {
+    return this.avatarRepository.softDelete(fileName);
   }
 }
