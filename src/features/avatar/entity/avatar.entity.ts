@@ -2,6 +2,7 @@ import { Profile } from '../../profile/entity/profile.entity.ts';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -20,8 +21,8 @@ export class Avatar {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ default: false })
-  isCurrent: boolean;
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @ManyToOne(() => Profile, (profile) => profile.avatar, {
     onDelete: 'CASCADE',

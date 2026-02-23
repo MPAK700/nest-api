@@ -42,7 +42,7 @@ export class InitProfileRefreshTokenAvatar1700000000000 implements MigrationInte
         "id" SERIAL NOT NULL,
         "fileName" VARCHAR NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-        "isCurrent" BOOLEAN NOT NULL DEFAULT false,
+        "deletedAt" TIMESTAMP,
         "profile_id" INTEGER,
         CONSTRAINT "PK_avatar_id" PRIMARY KEY ("id"),
         CONSTRAINT "FK_avatar_profile"

@@ -1,7 +1,5 @@
-import { ProfileResponseDTO } from './profile-response.dto.ts';
-
-export class PaginatedProfileResponseDTO {
-  items: ProfileResponseDTO[];
+export class PaginatedResultDTO<T> {
+  items: T[];
   meta: {
     itemCount: number;
     itemsPerPage: number;

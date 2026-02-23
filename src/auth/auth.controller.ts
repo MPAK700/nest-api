@@ -13,7 +13,7 @@ import { ProfileCreateDTO } from '../features/profile/dto/profile-create.dto.ts'
 import { SignInDTO } from '../features/profile/dto/sign-in.dto.ts';
 import { SignInResponseDTO } from './dto/sign-in-response.dto.ts';
 import { JwtRefreshGuard } from './guard/refresh.guard.ts';
-import { GetUser } from '../common/decorator/get-user.decorator.ts';
+import { GetUser } from '../common/decorators/get-user.decorator.ts';
 import type { RefreshUser } from './types/refresh-user.type.ts';
 
 @Controller()

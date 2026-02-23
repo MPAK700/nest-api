@@ -1,6 +1,6 @@
 import {
+  BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,49 +9,94 @@ import { Avatar } from './entity/avatar.entity.ts';
 import { Repository } from 'typeorm';
 import { IFileService } from '../../providers/files/files.adapter.ts';
 import { IUploadedMulterFile } from '../../providers/files/s3/interfaces/upload-file.interface.ts';
-import { ProfileService } from '../profile/profile.service.ts';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AvatarService {
   private readonly logger = new Logger(AvatarService.name);
+  private readonly AVATAR_MAX_LIMIT: number;
 
   constructor(
     @InjectRepository(Avatar)
     private readonly avatarRepository: Repository<Avatar>,
-    private readonly profileService: ProfileService,
+    private readonly configService: ConfigService,
     private readonly fileService: IFileService,
-  ) {}
+  ) {
+    this.AVATAR_MAX_LIMIT = parseInt(
+      this.configService.get<string>('AVATAR_MAX_LIMIT', '5'),
+      10,
+    );
+  }
 
   async uploadFile(profileId: number, file: IUploadedMulterFile) {
-    const profile = await this.profileService.findById(profileId);
-
-    if (!profile) {
-      return new NotFoundException('Profile not found');
-    }
-
     const count = await this.avatarRepository.count({
       where: {
         profile: { id: profileId },
       },
     });
 
-    if (count > 4) {
-      return new InternalServerErrorException('Too many avatars');
+    if (count >= this.AVATAR_MAX_LIMIT) {
+      this.logger.warn(
+        `Avatar limit exceeded for profileId=${profileId}, count=${count}`,
+      );
+      throw new BadRequestException('Too many active avatars');
     }
 
-    const timestamp = Date.now().toString();
-    const folder = profileId.toString();
-    await this.fileService.uploadFile({ file, folder, name: timestamp });
+    const { folder, fileName } = this.generateAvatarFileName(
+      profileId,
+      file.originalname,
+    );
+
+    await this.fileService.uploadFile({ file, folder, name: fileName });
+
     const avatarEntity = this.avatarRepository.create({
-      fileName: timestamp,
-      isCurrent: true,
+      fileName,
       profile: { id: profileId },
     });
 
-    return this.avatarRepository.save(avatarEntity);
+    const savedAvatar = this.avatarRepository.save(avatarEntity);
+    this.logger.log(
+      `Avatar saved for profileId=${profileId}, fileName=${fileName}`,
+    );
+
+    return savedAvatar;
   }
 
-  deleteAvatar(profileId: number, fileName: string) {
-    return this.avatarRepository.softDelete(fileName);
+  async deleteAvatar(profileId: number, fileName: string) {
+    const result = await this.avatarRepository.softDelete({
+      profile: { id: profileId },
+      fileName,
+    });
+
+    if (!result.affected) {
+      this.logger.warn(
+        `Avatar not found for profileId=${profileId}, fileName=${fileName}`,
+      );
+      throw new NotFoundException('Avatar not found');
+    }
+    const path = `avatars/${profileId}/${fileName}`;
+
+    await this.fileService.removeFile({ path });
+    this.logger.log(
+      `Avatar deleted: profileId=${profileId}, fileName=${fileName}`,
+    );
+  }
+
+  async countActiveAvatarsForProfile(profileId: number) {
+    const count = await this.avatarRepository
+      .createQueryBuilder('avatar')
+      .where('avatar.profileId = :profileId', { profileId })
+      .andWhere('avatar.deletedAt IS NULL')
+      .getCount();
+
+    return count;
+  }
+  private generateAvatarFileName(profileId: number, originalName: string) {
+    const timestamp = Date.now().toString();
+    const folder = profileId.toString();
+    const extension = originalName.split('.').pop();
+    const fileName = `${timestamp}.${extension}`;
+    this.logger.log(`Generated avatar fileName=${fileName}, folder=${folder}`);
+    return { folder, fileName };
   }
 }

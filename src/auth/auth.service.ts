@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { MoreThan, Repository } from 'typeorm';
 import ms, { StringValue } from 'ms';
-import { ProfileService } from '../features/profile/profile.service.ts';
+import { ProfileService } from '../features/profile/services/profile.service.ts';
 import { ProfileCreateDTO } from '../features/profile/dto/profile-create.dto.ts';
 import { SignInDTO } from '../features/profile/dto/sign-in.dto.ts';
 import { Profile } from '../features/profile/entity/profile.entity.ts';
@@ -58,10 +58,12 @@ export class AuthService {
     const profile = await this.profileService.findByLogin(profileDto.login);
 
     if (!profile) {
+      this.logger.warn(`No profile found for login=${profileDto.login}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (profile.password != hash(profileDto.password)) {
+      this.logger.warn(`Incorrect password for login=${profileDto.login}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -82,6 +84,7 @@ export class AuthService {
     );
 
     await this.refreshTokenRepository.save(refreshTokenEntity);
+    this.logger.log(`Successful sign in for login=${profileDto.login}`);
     return { accessToken, refreshToken };
   }
 
@@ -96,6 +99,7 @@ export class AuthService {
     });
 
     if (!oldToken) {
+      this.logger.warn(`Refresh token not found for user id=${refreshUser.id}`);
       throw new UnauthorizedException('Refresh token not found');
     }
 
@@ -115,6 +119,7 @@ export class AuthService {
     );
     await this.refreshTokenRepository.save([oldToken, newTokenEntity]);
 
+    this.logger.log(`Successful rotate tokens for login=${refreshUser.login}`);
     return {
       accessToken,
       refreshToken: newRefreshToken,
@@ -139,12 +144,14 @@ export class AuthService {
     });
 
     if (!tokenEntity) {
+      this.logger.debug(`Refresh token not found for id=${profile.id}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isValid = tokenEntity.tokenHash === hash(refreshToken);
 
     if (!isValid) {
+      this.logger.debug(`Invalid refresh token`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -159,6 +166,7 @@ export class AuthService {
     );
 
     if (!expiresIn) {
+      this.logger.debug(`Refresh token is expired`);
       throw new InternalServerErrorException('Server configuration error');
     }
 

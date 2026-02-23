@@ -25,6 +25,8 @@ export class S3Service extends IFileService {
     super();
   }
 
+  async;
+
   // TODO: в s3 (error: any) ? async await?
   async uploadFile(dto: UploadFilePayloadDto): Promise<UploadFileResultDto> {
     const { folder, file, name } = dto;
