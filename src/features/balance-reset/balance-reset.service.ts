@@ -2,15 +2,11 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import type { Queue } from 'bull';
 import { BALANCE_QUEUE, RESET_BALANCE } from './balance-reset.processor.ts';
-import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class BalanceResetService {
-  constructor(
-    @InjectQueue(BALANCE_QUEUE) private readonly queue: Queue,
-    private readonly config: ConfigService,
-  ) {}
+  constructor(@InjectQueue(BALANCE_QUEUE) private readonly queue: Queue) {}
 
   async resetAllBalances() {
     await this.queue.add(RESET_BALANCE);
