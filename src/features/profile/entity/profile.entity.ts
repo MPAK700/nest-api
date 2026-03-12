@@ -1,3 +1,4 @@
+import { Avatar } from '../../avatar/entity/avatar.entity.ts';
 import { RefreshToken } from '../../../auth/entity/refresh-token.entity.ts';
 import {
   Column,
@@ -31,6 +32,17 @@ export class Profile {
   @DeleteDateColumn()
   deletedAt: Date;
 
+  @Column({
+    type: 'numeric',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
+  balance: string;
+
   @OneToMany(() => RefreshToken, (token) => token.profile)
   refreshToken: Relation<RefreshToken>[];
+
+  @OneToMany(() => Avatar, (avatar) => avatar.profile)
+  avatar: Relation<Avatar>[];
 }

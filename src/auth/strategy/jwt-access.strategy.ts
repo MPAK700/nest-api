@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ProfileService } from '../../features/profile/profile.service.ts';
+import { ProfileService } from '../../features/profile/services/profile.service.ts';
 import { JWT_ACCESS_STRATEGY } from '../guard/access.guard.ts';
 
 @Injectable()

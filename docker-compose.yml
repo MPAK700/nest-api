@@ -11,15 +11,44 @@ services:
       - /var/lib/postgresql/data
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
+    
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
-  #     PGADMIN_DEFAULT_PASSWORD: admin
-  #   ports:
-  #     - '5050:80'
-  #   depends_on:
-  #     - postgres
-  #   volumes:
-  #     - pgadmin-data:/var/lib/pgadmin
+  minio:
+    env_file: 
+      - .env.test.local
+    image: minio/minio
+    container_name: "people-minio"
+    command: server --console-address ":9001" /data
+    ports:
+      - "${MINIO_PORT_1}:9000"
+      - "${MINIO_PORT_2}:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    
+  redis:
+    image: redis:alpine3.16
+    container_name: redis-wsbe
+    env_file: .env.test.local
+    command: >
+      --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT}
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  minio_data:
+  pgadmin-data:
