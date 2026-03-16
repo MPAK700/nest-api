@@ -11,17 +11,17 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/apps/nest-api/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"  \"migrations/**/*.ts\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "jest --config ./apps/nest-api/test/jest-e2e.json",
     "migration:generate": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:generate",
     "migration:create": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:create",
-    "migration:run": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:run -d ./src/configs/data-source.config.ts",
+    "migration:run": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:run -d ./apps/user-service/src/configs/data-source.config.ts",
     "migration:revert": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:revert -d ./src/configs/data-source.config.ts",
     "prepare": "husky install",
     "pre-commit": "lint-staged"
@@ -38,9 +38,11 @@
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.1.16",
     "@nestjs/schedule": "^6.1.1",
     "@nestjs/swagger": "^11.2.5",
     "@nestjs/typeorm": "^11.0.0",
+    "@nestjs/websockets": "^11.1.16",
     "bull": "^4.16.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -93,7 +95,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -101,8 +103,11 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/"
+    ]
   },
   "lint-staged": {
     "*.{js, jsx,ts,tsx}": [
