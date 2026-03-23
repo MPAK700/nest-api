@@ -9,8 +9,6 @@ import {
   BALANCE_QUEUE,
   BalanceResetProcessor,
 } from './balance-reset.processor.ts';
-import { ScheduleModule } from '@nestjs/schedule';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Profile]),
@@ -30,7 +28,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     BullModule.registerQueue({
       name: BALANCE_QUEUE,
     }),
-    ScheduleModule.forRoot(),
   ],
   controllers: [BalanceResetController],
   providers: [BalanceResetService, BalanceResetProcessor],

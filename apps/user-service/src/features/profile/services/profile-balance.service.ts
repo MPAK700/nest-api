@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Profile } from '../entity/profile.entity.ts';
 import { TransferResponseDTO } from '../dto/transfer-response.dto.ts';
+import { OutboxService } from '../../outbox/outbox.service.ts';
 
 @Injectable()
 export class ProfileBalanceService {
@@ -19,6 +20,7 @@ export class ProfileBalanceService {
   constructor(
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
+    private readonly outboxService: OutboxService,
   ) {}
 
   @Transactional()
@@ -26,37 +28,55 @@ export class ProfileBalanceService {
     id: number,
     balanceTransferDto: TransferDTO,
   ): Promise<TransferResponseDTO> {
-    this.logger.debug(
-      `Transfer start: from=${id} to=${balanceTransferDto.destinationId} amount=${balanceTransferDto.amount}`,
-    );
-    const sender = await this.profileRepository.findOne({
-      where: { id },
-      lock: { mode: 'pessimistic_write' },
-    });
+    const { destinationId, amount } = balanceTransferDto;
 
-    if (!sender) {
-      this.logger.warn(`Transfer failed: sender id=${id} not found`);
-      throw new NotFoundException();
+    this.logger.debug(
+      `Transfer start: from=${id} to=${destinationId} amount=${amount}`,
+    );
+
+    if (id === destinationId) {
+      this.logger.warn(`Transfer failed: self-transfer for id=${id}`);
+      throw new BadRequestException('Cannot transfer to yourself');
     }
 
-    const receiver = await this.profileRepository.findOne({
-      where: { id: balanceTransferDto.destinationId },
+    const [firstId, secondId] =
+      id < destinationId ? [id, destinationId] : [destinationId, id];
+
+    const firstProfile = await this.profileRepository.findOne({
+      where: { id: firstId },
       lock: { mode: 'pessimistic_write' },
     });
 
-    if (!receiver) {
+    if (!firstProfile) {
+      const missingRole = firstId === id ? 'sender' : 'receiver';
       this.logger.warn(
-        `Transfer failed: receiver id=${balanceTransferDto.destinationId} not found`,
+        `Transfer failed: ${missingRole} id=${firstId} not found`,
       );
       throw new NotFoundException();
     }
 
-    const decimalAmount = new Decimal(balanceTransferDto.amount);
+    const secondProfile = await this.profileRepository.findOne({
+      where: { id: secondId },
+      lock: { mode: 'pessimistic_write' },
+    });
+
+    if (!secondProfile) {
+      const missingRole = secondId === id ? 'sender' : 'receiver';
+      this.logger.warn(
+        `Transfer failed: ${missingRole} id=${secondId} not found`,
+      );
+      throw new NotFoundException();
+    }
+
+    const sender = firstId === id ? firstProfile : secondProfile;
+    const receiver = firstId === id ? secondProfile : firstProfile;
+
+    const decimalAmount = new Decimal(amount);
     const senderBalance = new Decimal(sender.balance);
 
     if (senderBalance.lt(decimalAmount)) {
       this.logger.warn(
-        `Transfer failed: sender id=${id} insufficient funds for amount=${balanceTransferDto.amount}`,
+        `Transfer failed: sender id=${id} insufficient funds for amount=${amount}`,
       );
       throw new BadRequestException('Insufficient funds');
     }
@@ -67,14 +87,21 @@ export class ProfileBalanceService {
       .toFixed(2);
 
     await this.profileRepository.save([sender, receiver]);
+    await this.outboxService.addBalanceTransferCompletedEvent({
+      senderId: id,
+      receiverId: destinationId,
+      amount,
+    });
+
     this.logger.log(
-      `Transfer success: from=${id} to=${balanceTransferDto.destinationId} amount=${balanceTransferDto.amount} newSenderBalance=${sender.balance} newReceiverBalance=${receiver.balance}`,
+      `Transfer success: from=${id} to=${destinationId} amount=${amount} newSenderBalance=${sender.balance} newReceiverBalance=${receiver.balance}`,
     );
+
     return {
       success: true,
       sender: id,
-      receiver: balanceTransferDto.destinationId,
-      amount: balanceTransferDto.amount,
+      receiver: destinationId,
+      amount,
     };
   }
 }

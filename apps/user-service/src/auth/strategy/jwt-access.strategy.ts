@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ProfileService } from '../../features/profile/services/profile.service.ts';
 import { JWT_ACCESS_STRATEGY } from '../guard/access.guard.ts';
+import type { AccessTokenPayload } from '../../../../../libs/contracts/src/auth/jwt-payloads.ts';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -27,7 +28,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: { sub: number }) {
+  async validate(payload: AccessTokenPayload) {
     const profile = await this.profileService.findById(payload.sub);
 
     if (!profile) {

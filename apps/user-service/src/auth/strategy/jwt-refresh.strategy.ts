@@ -6,6 +6,7 @@ import { ProfileService } from '../../features/profile/services/profile.service.
 import { AuthService } from '../auth.service.ts';
 import { RequestWithCookies } from '../types/request-with-cookies.type.ts';
 import { JWT_REFRESH_STRATEGY } from '../guard/refresh.guard.ts';
+import type { RefreshTokenPayload } from '../../../../../libs/contracts/src/auth/jwt-payloads.ts';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -33,10 +34,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(
-    req: RequestWithCookies,
-    payload: { sub: number; jti: string },
-  ) {
+  async validate(req: RequestWithCookies, payload: RefreshTokenPayload) {
     const refreshToken: string = req.cookies['refreshToken'];
     const profile = await this.profileService.findById(payload.sub);
 

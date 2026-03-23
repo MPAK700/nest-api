@@ -9,6 +9,7 @@ import { ProfileSearchService } from './services/profile-search.service.ts';
 import { CacheModule } from '../../providers/cache/cache.module.ts';
 import { ProfileBalanceController } from './controllers/profile-balance.controller.ts';
 import { ProfileBalanceService } from './services/profile-balance.service.ts';
+import { OutboxModule } from '../outbox/outbox.module.ts';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProfileBalanceService } from './services/profile-balance.service.ts';
     TypeOrmModule.forFeature([Profile]),
     AvatarModule,
     CacheModule,
+    OutboxModule,
   ],
   controllers: [ProfileController, ProfileBalanceController],
   providers: [ProfileService, ProfileSearchService, ProfileBalanceService],

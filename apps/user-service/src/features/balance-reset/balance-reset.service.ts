@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import type { Queue } from 'bull';
 import { BALANCE_QUEUE, RESET_BALANCE } from './balance-reset.processor.ts';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class BalanceResetService {
@@ -13,7 +13,7 @@ export class BalanceResetService {
     return { status: 'Balance reset job enqueued' };
   }
 
-  @Cron('*/10 * * * *')
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleCron() {
     await this.resetAllBalances();
   }

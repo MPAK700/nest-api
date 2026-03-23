@@ -7,6 +7,8 @@ import { AvatarModule } from './features/avatar/avatar.module.ts';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { BalanceResetModule } from './features/balance-reset/balance-reset.module.ts';
+import { ScheduleModule } from '@nestjs/schedule';
+import { OutboxModule } from './features/outbox/outbox.module.ts';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { BalanceResetModule } from './features/balance-reset/balance-reset.modul
       isGlobal: true,
       envFilePath: ['.env.test.local'],
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -36,6 +39,7 @@ import { BalanceResetModule } from './features/balance-reset/balance-reset.modul
     ProfileModule,
     AvatarModule,
     BalanceResetModule,
+    OutboxModule,
   ],
 })
 export class AppModule {}
